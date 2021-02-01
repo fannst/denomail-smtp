@@ -19,10 +19,15 @@ import { Logger } from 'https://github.com/fannst/denomail-logger/raw/main/index
 import { Reply } from '../../Reply.ts';
 import { Command } from '../../Command.ts';
 import { Session } from '../../Session.ts';
+import { ServerEvent } from "../../ServerEvent.ts";
 
-export const quit = async (logger: Logger, session: Session, command: Command): Promise<void> => {
+const run = async (logger: Logger, session: Session, command: Command): Promise<void> => {
     await new Reply(221, 'OK, FSMTP Terminates connection', '2.0.0').send(session.conn);
     logger.trace('QUIT received, connection terminated.');
     
     session.close();
 }
+
+export const event: ServerEvent = {
+    run, pre: null, post: null
+};

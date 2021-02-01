@@ -17,31 +17,31 @@ limitations under the License.
 import { Logger } from 'https://github.com/fannst/denomail-logger/raw/main/index.ts';
 
 import { Reply } from '../../Reply.ts';
-import { Command, CommandArgument_Address, CommandSequenceError } from '../../Command.ts';
+import { Command, CommandArgument_Address } from '../../Command.ts';
 import { Session, SessionFlags } from '../../Session.ts';
 import { SequenceChecks } from "../../SequenceChecks.ts";
+import { ServerEvent } from "../../ServerEvent.ts";
 
-const validate = (session: Session): void => {
+const pre = async (logger: Logger, session: Session, command: Command): Promise<void> => {
     SequenceChecks.greetingDone(session);
-
-    if (!(session.flags & SessionFlags.MailDone)) {
-        throw new CommandSequenceError('Send FROM first');
-    }
+    SequenceChecks.mailDone(session);
 };
 
-export const rcpt = async (logger: Logger, session: Session, command: Command, reply: Reply): Promise<void> => {
-    validate(session);
-
-    // Parses the address argument
+const run = async (logger: Logger, session: Session, command: Command): Promise<void> => {
     const argument: CommandArgument_Address = CommandArgument_Address.parse(command.args);
 
-    // Prints the recipient to the console, and adds it to the destination
-    //  address list in the sessin
     logger.trace(`Message to: ${argument.address.toString()}`);
     session.addTo(argument.address);
 
-    // Sets the flag to indicate at least one RCPT address is set
+    await new Reply(250, `OK, to: ${argument.address.toString()}`, '2.1.0').send(session.conn);
+}
+
+const post = async (logger: Logger, session: Session, command: Command): Promise<void> => {
     if (!(session.flags & SessionFlags.RcptDone)) {
         session.flags |= SessionFlags.RcptDone;
     }
-}
+};
+
+export const event: ServerEvent = {
+    run, pre, post
+};

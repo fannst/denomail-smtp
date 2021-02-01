@@ -20,8 +20,9 @@ import { Reply } from '../../Reply.ts';
 import { Command, CommandArgument_Address, CommandSequenceError } from '../../Command.ts';
 import { Session, SessionFlags } from '../../Session.ts';
 import { SequenceChecks } from "../../SequenceChecks.ts";
+import { ServerEvent } from "../../ServerEvent.ts";
 
-const validate = (session: Session): void => {
+const pre = async (logger: Logger, session: Session, command: Command): Promise<void> => {
     SequenceChecks.greetingDone(session);
 
     if (session.flags & SessionFlags.MailDone) {
@@ -29,19 +30,22 @@ const validate = (session: Session): void => {
     }
 };
 
-export const mail = async (logger: Logger, session: Session, command: Command, reply: Reply): Promise<void> => {
-    validate(session);
-
-    // Parses the address argument
+const run = async (logger: Logger, session: Session, command: Command): Promise<void> => {
     const argument: CommandArgument_Address = CommandArgument_Address.parse(command.args);
 
-    // Logs to the console that we know who sent it
     logger.trace(`Received from: ${argument.address.toString()}`);
     session.from = argument.address;
 
-    // If not set yet, set the RcptDone flag to indicate that the MAIL step
-    //  is done
-    if (!(session.flags & SessionFlags.RcptDone)) {
-        session.flags |= SessionFlags.RcptDone;
-    }
+    await new Reply(250, `OK, from: ${argument.address.toString()}`, '2.1.0').send(session.conn);
 }
+
+
+const post = async (logger: Logger, session: Session, command: Command): Promise<void> => {
+    if (!(session.flags & SessionFlags.MailDone)) {
+        session.flags |= SessionFlags.MailDone;
+    }
+};
+
+export const event: ServerEvent = {
+    run, pre, post
+};

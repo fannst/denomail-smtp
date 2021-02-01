@@ -14,11 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { help } from './help.event.ts';
-import { ehlo } from './ehlo.event.ts';
+import { ServerEvent } from "../../ServerEvent.ts";
+import { event as helpEvent } from './help.event.ts';
+import { event as EhloEvent } from './ehlo.event.ts';
+import { event as starttlsEvent } from './starttls.event.ts';
+import { event as rsetEvent } from './rset.event.ts';
+import { event as noopEvent } from './noop.event.ts';
 
 export const esmtp_events: {
-    [key: string]: Function
+    [key: string]: ServerEvent
 } = {
-    help, ehlo
+    help: helpEvent,
+    ehlo: EhloEvent,
+    starttls: starttlsEvent,
+    rset: rsetEvent,
+    noop: noopEvent
 };

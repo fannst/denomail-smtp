@@ -16,12 +16,10 @@ limitations under the License.
 
 import { Logger, LoggerLevel } from 'https://github.com/fannst/denomail-logger/raw/main/index.ts';
 import { assert } from "https://deno.land/std@0.85.0/testing/asserts.ts";
-import { EventEmitter, GenericFunction } from "https://deno.land/std/node/events.ts";
 
-import { smtp_events } from './events/smtp/index.ts';
-import { esmtp_events } from './events/esmtp/index.ts';
 import { Session } from "./Session.ts";
-import { Client } from "./Client.ts";
+import { ServerEvent } from "./ServerEvent.ts";
+import { ServerConnection } from "./ServerConnection.ts";
 
 export const SMTP_SSL_PORT: number = 465;
 export const SMTP_PLAIN_PORT: number = 25;
@@ -99,7 +97,7 @@ export class SMTPServer {
      * @param conn the connection
      */
     private handle_connection = async (conn: Deno.Conn): Promise<void> => {
-        new Client(new Session(conn)).run();
+        new ServerConnection(new Session(conn)).run();
     };
 }
 

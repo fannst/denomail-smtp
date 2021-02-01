@@ -16,27 +16,28 @@ limitations under the License.
 
 import { Logger } from 'https://github.com/fannst/denomail-logger/raw/main/index.ts';
 
-import { Reply } from '../../Reply.ts';
-import { Command, CommandArgument_Hostname } from '../../Command.ts';
-import { Session, SessionFlags } from '../../Session.ts';
+import { Command } from '../../Command.ts';
+import { Reply } from "../../Reply.ts";
+import { SequenceChecks } from "../../SequenceChecks.ts";
+import { Session } from '../../Session.ts';
 import { ServerEvent } from "../../ServerEvent.ts";
 
+const pre = async (logger: Logger, session: Session, command: Command): Promise<void> => {
+    SequenceChecks.greetingDone(session);
+};
+
 const run = async (logger: Logger, session: Session, command: Command): Promise<void> => {
-    const argument: CommandArgument_Hostname = CommandArgument_Hostname.parse(command.args);
+    logger.trace('Upgrading to STARTTLS.');
+    await new Reply(220, 'OK, Go ahead!', '2.0.0').send(session.conn);
 
-    const addr: Deno.NetAddr = (session.conn.remoteAddr as Deno.NetAddr);
-
-    await new Reply(250, `Fannst ESMTP at your service, [${addr.hostname}:(${addr.port})]`).send(session.conn);
+    // TODO: StartTLS - Not supported in Deno atm
 }
 
+
 const post = async (logger: Logger, session: Session, command: Command): Promise<void> => {
-    if (!(session.flags & SessionFlags.GreetingDone)) {
-        session.flags |= SessionFlags.GreetingDone;
-    }
+
 };
 
 export const event: ServerEvent = {
-    run,
-    pre: null,
-    post
+    run, pre, post
 };

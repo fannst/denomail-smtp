@@ -1,1 +1,1 @@
-deno run --allow-net main.ts
+deno run --allow-all --unstable main.ts

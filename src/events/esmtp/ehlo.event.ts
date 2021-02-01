@@ -19,25 +19,33 @@ import { Logger } from 'https://github.com/fannst/denomail-logger/raw/main/index
 import { Reply } from '../../Reply.ts';
 import { Command, CommandArgument_Hostname } from '../../Command.ts';
 import { Session, SessionFlags } from '../../Session.ts';
+import { ServerEvent } from "../../ServerEvent.ts";
 
-export const ehlo = async (logger: Logger, session: Session, command: Command): Promise<void> => {
+const run = async (logger: Logger, session: Session, command: Command): Promise<void> => {
     const argument: CommandArgument_Hostname = CommandArgument_Hostname.parse(command.args);
 
     const capabilities: string[] = [
         'PIPELINING',
         'ENHANCEDSTATUSCODES',
         'SMTPUTF8',
-        'STARTTLS',
+        // 'STARTTLS',
         '8BITMIME'
     ];
 
     const addr: Deno.NetAddr = (session.conn.remoteAddr as Deno.NetAddr);
 
-    Reply.write_line(session.conn, 250, `Fannst ESMTP at your service, [${addr.hostname}:(${addr.port})]`, false);
-    Reply.write_lines(session.conn, 250, capabilities);
+    await Reply.write_line(session.conn, 250, `Fannst ESMTP at your service, [${addr.hostname}:(${addr.port})]`, false);
+    await Reply.write_lines(session.conn, 250, capabilities);
+}
 
-    // Sets the greeting done flag, to allow further operations
+const post = async (logger: Logger, session: Session, command: Command): Promise<void> => {
     if (!(session.flags & SessionFlags.GreetingDone)) {
         session.flags |= SessionFlags.GreetingDone;
     }
-}
+};
+
+export const event: ServerEvent = {
+    run,
+    pre: null,
+    post
+};

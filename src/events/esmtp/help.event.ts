@@ -19,7 +19,14 @@ import { Logger } from 'https://github.com/fannst/denomail-logger/raw/main/index
 import { Reply } from '../../Reply.ts';
 import { Command } from '../../Command.ts';
 import { Session } from '../../Session.ts';
+import { ServerEvent } from "../../ServerEvent.ts";
 
-export const help = async (logger: Logger, session: Session, command: Command): Promise<void> => {
+const run = async (logger: Logger, session: Session, command: Command): Promise<void> => {
     await new Reply(214, 'Fannst ESMTP Server, https://github.com/fannst/denomail-smtp', '2.0.0').send(session.conn);
 }
+
+export const event: ServerEvent = {
+    run,
+    pre: null,
+    post: null
+};

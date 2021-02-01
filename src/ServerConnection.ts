@@ -6,11 +6,12 @@ import { Session } from "./Session.ts";
 import { Command, CommandSequenceError, CommandArgument_Address, CommandArgument_Hostname, CommandError } from "./Command.ts";
 import { Reply } from "./Reply.ts";
 import { events } from './events/index.ts';
+import { ServerEvent } from "./ServerEvent.ts";
 
 const decoder: TextDecoder = new TextDecoder();
 const encoder: TextEncoder = new TextEncoder();
 
-export class Client {
+export class ServerConnection {
     private _session: Session;
     private _logger: Logger;
     
@@ -44,7 +45,7 @@ export class Client {
             }
 
             // Call the line callback
-            this.on_line(this._logger, line);
+            await this.on_line(this._logger, line);
         }
 
         this._logger.trace('Client disconnected.');
@@ -105,16 +106,23 @@ export class Client {
         //  and use the others as arguments
         const command: Command = new Command(splitted[0].toLowerCase(), splitted.slice(1));
         try {
-            if (!events[command.command]) {
+            const event: ServerEvent = events[command.command];
+            if (!event) {
                 throw new CommandError('Command not found', 502, '5.5.1');
             }
 
-            await events[command.command](logger, this._session, command);
+            // Runs the defined functions in the order of: pre -> run -> post
+            //  this just cleans up the way we handle events
+            if (event.pre) await event.pre(logger, this._session, command);
+            if (event.run) await event.run(logger, this._session, command);
+            if (event.post) await event.post(logger, this._session, command);
         } catch (e) {
             if (e instanceof CommandError) {
                 new Reply(e.code, e.message, e.enchanced_code).send(this._session.conn);
             } else if (e instanceof CommandSequenceError) {
                 new Reply(503, e.message, '5.5.1').send(this._session.conn);
+            } else {
+                logger.error(e);
             }
         }
     };

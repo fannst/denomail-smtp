@@ -60,7 +60,7 @@ export class Reply {
         if ('000 '.length + this._message.length <= Reply.line_length) {
             await Reply.write_line(conn, this._code, t, true, this._enchanced_code);
         } else {
-            Reply.write_lines(conn, this._code, Reply.wrap(t));
+            await Reply.write_lines(conn, this._code, Reply.wrap(t));
         }
     };
 

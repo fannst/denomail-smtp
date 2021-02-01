@@ -14,14 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { quit } from './quit.event.ts';
-import { data } from './data.event.ts';
-import { mail } from './mail.event.ts';
-import { rcpt } from './rcpt.event.ts';
-import { helo } from './helo.event.ts';
+import { ServerEvent } from "../../ServerEvent.ts";
+import { event as quitEvent } from './quit.event.ts';
+import { event as mailEvent } from './mail.event.ts';
+import { event as rcptEvent } from './rcpt.event.ts';
+import { event as heloEvent } from './helo.event.ts';
+import { event as dataEvent } from './data.event.ts';
 
 export const smtp_events: {
-    [key: string]: Function
+    [key: string]: ServerEvent
 } = {
-    quit, data, mail, rcpt, helo
+    quit: quitEvent,
+    mail: mailEvent, 
+    rcpt: rcptEvent,
+    helo: heloEvent,
+    data: dataEvent
 };

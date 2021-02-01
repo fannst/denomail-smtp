@@ -19,7 +19,8 @@ import { Address } from 'https://github.com/fannst/denomail-mime/raw/main/index.
 export const SessionFlags = {
     GreetingDone: (1 << 0),
     MailDone: (1 << 1),
-    RcptDone: (1 << 2)
+    RcptDone: (1 << 2),
+    DataDone: (1 << 3)
 };
 
 export class Session {
@@ -28,6 +29,7 @@ export class Session {
     private _conn_open: boolean;
     private _to?: Address[];
     private _from?: Address;
+    private _data?: string;
 
     public constructor(c: Deno.Conn)
     {
@@ -40,12 +42,24 @@ export class Session {
      * Getters / Setters
      *********************************/
 
+    public get data() {
+        return this.data;
+    }
+
+    public set data(d: string | undefined) {
+        this._data = d;
+    }
+
     public get conn_open() {
         return this._conn_open;
     }
 
     public get conn() {
         return this._conn;
+    }
+
+    public set conn(c: Deno.Conn) {
+        this._conn = c;
     }
 
     public get flags() {

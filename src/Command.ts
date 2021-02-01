@@ -81,8 +81,14 @@ export class CommandArgument_Address {
         if (splitted.length < 2) {
             throw new CommandError('Invalid address argument.', 501, '5.1.3');
         }
-
-        return new CommandArgument_Address(Address.parse(splitted[1]));
+        try {
+            return new CommandArgument_Address(Address.parse(splitted[1]));
+        } catch (e) {
+            if (e instanceof SyntaxError) {
+                throw new CommandError(e.message, 501, '5.1.3');
+            }
+            throw e;
+        }
     };
 }
 
