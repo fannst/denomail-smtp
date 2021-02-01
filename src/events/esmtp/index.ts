@@ -14,12 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Logger } from 'https://github.com/fannst/denomail-logger/raw/main/index.ts';
+import { help } from './help.event.ts';
+import { ehlo } from './ehlo.event.ts';
 
-import { Reply } from '../../Reply.ts';
-import { Command } from '../../Command.ts';
-import { Session } from '../../Session.ts';
-
-export const help = async (logger: Logger, session: Session, command: Command): Promise<void> => {
-    await new Reply(214, 'Fannst ESMTP Server, https://github.com/fannst/denomail-smtp', '2.0.0').send(session.conn);
-}
+export const esmtp_events: {
+    [key: string]: Function
+} = {
+    help, ehlo
+};

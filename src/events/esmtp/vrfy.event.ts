@@ -13,13 +13,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
-import { Logger } from 'https://github.com/fannst/denomail-logger/raw/main/index.ts';
-
-import { Reply } from '../../Reply.ts';
-import { Command } from '../../Command.ts';
-import { Session } from '../../Session.ts';
-
-export const help = async (logger: Logger, session: Session, command: Command): Promise<void> => {
-    await new Reply(214, 'Fannst ESMTP Server, https://github.com/fannst/denomail-smtp', '2.0.0').send(session.conn);
-}
